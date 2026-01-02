@@ -5,6 +5,7 @@ import ssl
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # lm_tracker/
@@ -88,6 +89,8 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "lm_tracker.users",
     # Your stuff: custom apps go here
+    "lm_tracker.bot_alert",
+    "lm_tracker.telegram_bot",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -306,13 +309,19 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-hijack-root-logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+CELERY_BEAT_SCHEDULE = {
+    "bot-broadcast-every-10-min": {
+        "task": "lm_tracker.bot_alert.tasks.bot_broadcast_task",
+        "schedule": crontab(minute="*/10"),
+    },
+}
 # django-allauth
 # ------------------------------------------------------------------------------
-ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
+ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", False)
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_LOGIN_METHODS = {"username"}
+ACCOUNT_LOGIN_METHODS = {"email"}
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://docs.allauth.org/en/latest/account/configuration.html
@@ -350,3 +359,24 @@ SPECTACULAR_SETTINGS = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+
+# telegram bot
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_CHANNEL_ID = env("TELEGRAM_CHANNEL_ID", default="")
+TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="logam_track_bot")
+APP_BASE_URL = env("APP_BASE_URL", default="https://bot-tracker.phib.web.id")
+PUBLIC_WEBHOOK_URL = env("PUBLIC_WEBHOOK_URL", default="")
+TELEGRAM_WEBHOOK_SECRET_TOKEN = env("TELEGRAM_WEBHOOK_SECRET_TOKEN", default="x8k2p9")
+
+FREE_TXN_LIMIT_PER_MONTH = 30
+
+TWELVEDATA_API_KEY = env("TWELVEDATA_API_KEY", default="")
+GOLDAPI_KEY = env("GOLDAPI_KEY", default="")
+
+SPOT_ALERT_PCT = float(env("SPOT_ALERT_PCT", default="0.5"))
+BUYBACK_ALERT_RP = int(env("BUYBACK_ALERT_RP", default="10000"))
+COOLDOWN_ALERT_MIN = int(env("COOLDOWN_ALERT_MIN", default="60"))
+COOLDOWN_UPDATE_MIN = int(env("COOLDOWN_UPDATE_MIN", default="180"))
+UPDATE_SLOTS = env("UPDATE_SLOTS", default="09:00,13:00,19:00")
+DRY_RUN = env("DRY_RUN", default="0") == "1"

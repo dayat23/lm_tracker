@@ -121,6 +121,9 @@ ignore = [
     "S101", # Use of assert detected https://docs.astral.sh/ruff/rules/assert/
     "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
     "SIM102", # sometimes it's better to nest
+    "PLR0915", # sometimes it's better to nest
+    "PLR0912", # sometimes it's better to nest
+    "C901", # sometimes it's better to nest
     # of types for comparison.
     # Deactivated because it can make the code slow:
     # https://github.com/astral-sh/ruff/issues/7871
@@ -166,7 +169,9 @@ authors = [
 requires-python = "==3.13.*"
 dependencies = [
     "argon2-cffi==25.1.0",
+    "beautifulsoup4>=4.14.3",
     "celery==5.6.1",
+    "cloudscraper>=1.2.71",
     "crispy-bootstrap5==2025.6",
     "django==5.2.9",
     "django-allauth[mfa]==65.13.1",
@@ -186,8 +191,10 @@ dependencies = [
     "pillow==12.0.0",
     "psycopg[c]==3.3.2",
     "python-slugify==8.0.4",
+    "python-telegram-bot>=22.5",
     "redis==7.1.0",
     "sentry-sdk==2.48.0",
+    "twelvedata>=1.2.25",
     "uvicorn-worker==0.4.0",
     "uvicorn[standard]==0.40.0",
     "whitenoise==6.11.0",
